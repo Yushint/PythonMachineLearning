@@ -29,26 +29,6 @@ def main():
     """Главная функция программы."""
     model = build_model()
     fit_and_evaluate_model(model)
-    files_for_prediction = input("Введите названия файлов для предсказания (./name1 ./name2 ...): ")
-    files_for_prediction = convert_image_to_appropriate_format(files_for_prediction)
-    predict_model(model, files_for_prediction)
-
-def convert_image_to_appropriate_format(images_url:str) -> list:
-    """Конвертирует изображение в набор числовых значений пикселей, воспринимаемых
-       нейронной сетью.
-    """
-    image_list = []
-    images_url = images_url.split()
-    for image_url in images_url:
-        image = Image.open(image_url)
-        image = image.resize((28, 28))
-        image = image.convert("L") # to grayscale
-        image = np.array(image)
-        image = image.reshape(1, 28, 28, 1)
-        image = image / 255.0
-        image_list.append((image, image_url)) # набор пикселей/url
-    return image_list
-    
 
 def build_model():
     """Функция создаёт свёрточную ML-модель."""
@@ -82,29 +62,6 @@ def fit_and_evaluate_model(model):
         print("Модель сохранена под именем machine_learning_model.h5 .")
         print("Test loss:", score[0])
         print("Test accuracy:", score[1])
-    
-def predict_model(model, image_data, mode="default"):
-    """ Предсказание признака(ов) моделью.
-        mode="default" при обычном запуске.
-    """
-    try:
-        for data in image_data:
-            if mode == "default":
-                prediction = model.predict(data[0]) # data[0] -> pixels
-                result = find_max_by_iteration(prediction[0])
-                print(f"Предсказание для файла {data[1]}.") # data[1] -> image's url
-                print("Prediction:", result)
-                print()
-                print()
-            elif mode == "bot":
-                prediction = model.predict(data[0])
-                result = find_max_by_iteration(prediction[0])
-                return result
-            else:
-                print("Error")
-                return
-    except Exception:
-        print("Что-то пошло не так. Повторите попытку.")
         
 def check_if_file_exists(full_filename:str) -> bool:
     """Проверяет, существует ли файл в директории."""
